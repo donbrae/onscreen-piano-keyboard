@@ -1,0 +1,13 @@
+{
+  "name": "onscreen-piano-keyboard",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {},
+  "dependencies": {
+    "@tonejs/midi": "2.0.27",
+    "howler": "2.2.1",
+    "tone": "13.4.9"
+  },
+  "keywords": []
+}
