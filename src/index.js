@@ -1,17 +1,16 @@
-import { Howl, Howler } from "howler";
+import { Howl } from "howler";
 import Tone from "tone";
-// import Midi from "@tonejs/midi";
 import * as Midi from "@tonejs/midi";
 
 /**
  * @name KEYS_DEMO
- * @author Jamie Smith
+ * @author Jamie Smith, jamieonkeys.dev, jazzkeys.fyi
  */
 
 const KEYS_DEMO = (function () {
   const cfg = {
     audio_folder: "../audio",
-    logging: false,
+    logging: true,
     fade_rate: 120, // ms
     // https://commons.wikimedia.org/wiki/File:PianoKeyboard.svg; Copyright(c) 2005 Lauri Kaila; GNU Free Documentation License
     keyboard_88:
@@ -29,15 +28,14 @@ const KEYS_DEMO = (function () {
     loading: false,
     playing_item_object_name: undefined, // Name of the item currently being played
     play_count: 0, // Updated after end of each play of main audio file
+    update_audio: false, // Was a relevant parameter (e.g. tempo or rhythm) changed during playing that requires the main audio file playing to be updated?
     is_iOS: undefined, // true/false
     html_audio: undefined, // Re iOS bug
     html_audio_set_up: false, // Flag. Background HTML5 element created
     html_audio_playing: false, // Flag. Background HTML5 started playing
     tonejs: {
       items_midi: {}, // MIDI files as JS objects
-      synths: [],
-      visuals: [],
-      indicator_r_original: undefined // Starting radius of indicator circle
+      visuals: []
     },
     timeouts: {
       // Store timeouts in state object so they can be cleared (and we can prevent multiple instances thereof being fired). All timeouts in this object are cleared by playStopHowl()
@@ -67,7 +65,6 @@ const KEYS_DEMO = (function () {
   }
 
   function init() {
-    console.log("init");
     if (!document.querySelector(".button-play")) return; // At least one .button-playing needs to be present
 
     const user_agent = navigator.userAgent.toLowerCase();
@@ -78,8 +75,6 @@ const KEYS_DEMO = (function () {
       user_agent.indexOf("ipad") > -1 ||
       (navigator.maxTouchPoints && /Mac/.test(navigator.platform)); // iPad running 'desktop' Safari
 
-    // state.is_iOS = true; // Testing
-
     document.querySelectorAll(".button-play").forEach((element) => {
       let data = element.dataset;
       let name = replaceHyphens(data.name);
@@ -87,7 +82,6 @@ const KEYS_DEMO = (function () {
         data.tempo && document.querySelector(data.tempo)
           ? parseInt(document.querySelector(data.tempo).value)
           : undefined;
-
       let tempo_formatted = "";
       if (tempo) tempo_formatted = `-${tempo}`;
 
@@ -111,7 +105,6 @@ const KEYS_DEMO = (function () {
       );
 
       // Add JS object data representation of MIDI file if there is one associated with this example
-      console.log(midi);
       if (midi !== undefined) {
         Midi.Midi.fromUrl(midi).then((midi_js) => {
           let keyboard_svg;
@@ -153,14 +146,9 @@ const KEYS_DEMO = (function () {
       );
     });
 
-    state.indicator_r_original = parseHTML(cfg.keyboard_88)
-      .querySelector(".note.indicator")
-      .getAttribute("r"); // Get default keyboard key indicator radius
-
     if (state.is_iOS) setupHTML5Audio();
-
     addHandlers();
-    console.log("***", Tone);
+
     Tone.context.lookAhead = 0; // https://github.com/Tonejs/Tone.js/issues/306#issuecomment-365989984
     if (cfg.logging) console.debug(state);
     state.init = true;
@@ -191,9 +179,19 @@ const KEYS_DEMO = (function () {
     const name = e.target.dataset.name;
     const item_state = state.items_state[replaceHyphens(name)];
 
+    const rhythm = item_state.rhythm ? `-${item_state.rhythm}` : "";
     const tempo = item_state.tempo ? `-${item_state.tempo}` : "";
 
-    item_state.file_path = `${cfg.audio_folder}/${name}/${name}${tempo}`;
+    item_state.file_path = `${cfg.audio_folder}/${name}/${name}${rhythm}${tempo}`;
+
+    // Should audio file be updated so that, if looped, the user-selected audio is played?
+    if (
+      state.playing &&
+      (e.target.classList.contains("tempo") ||
+        e.target.classList.contains("rhythm")) &&
+      state.active_item_state.name === replaceHyphens(name)
+    )
+      state.update_audio = true;
 
     if (cfg.logging) console.debug(state);
   }
@@ -202,7 +200,6 @@ const KEYS_DEMO = (function () {
     const tempo_button = document.querySelector(
       state.active_item_state.button_play.dataset.tempo
     );
-
     if (tempo_button) tempo_button.disabled = true;
   }
 
@@ -210,8 +207,6 @@ const KEYS_DEMO = (function () {
     const tempo_button = document.querySelector(
       state.active_item_state.button_play.dataset.tempo
     );
-
-    // Tempo can't be changed during countin
     if (tempo_button) tempo_button.disabled = false;
   }
 
@@ -229,6 +224,7 @@ const KEYS_DEMO = (function () {
     state.active_item_state.button_play.innerText = "Play";
     state.playing = false;
     state.loading = false;
+    state.update_audio = false;
     state.audio = undefined;
     state.play_count = 0;
     if (cfg.logging) console.debug("Finished");
@@ -268,7 +264,6 @@ const KEYS_DEMO = (function () {
     }
 
     if ((state.playing || state.loading) && e && e.target !== undefined) {
-      // > Check this conditional. Is it being called if the user clicks stop right at the end of an example that is to be looped? play() seems to be being run in this scenario. I've added a (state.audio !== undefined) conditional to play() but maybe the play() conditional can be removed when I've checked this conditional
       // User clicks Stop
       finish();
     } else {
@@ -286,15 +281,14 @@ const KEYS_DEMO = (function () {
       state.audio = new Howl({
         src: [`${item_state.file_path}.webm`, `${item_state.file_path}.m4a`],
         onload: function () {
-          // state.audio.off('load') in the .button-play handler cancels this event. Doing so covers cases where the user has clicked 'Stop' or another 'Play' button before the audio has loaded. The file is still loaded so will play right away if the user clicks 'Play' again later
-
           clearTimeout(state.timeouts.loading);
-
           started(e);
 
-          state.playing_item_object_name = replaceHyphens(
-            e.target.dataset.name
-          );
+          if (e) {
+            state.playing_item_object_name = replaceHyphens(
+              e.target.dataset.name
+            );
+          }
 
           toneSchedule();
           play();
@@ -305,14 +299,18 @@ const KEYS_DEMO = (function () {
           if (cfg.logging) console.debug("`state.audio` onend");
           state.play_count++;
 
-          if (item_state.loop) {
+          if (item_state.loop && !state.update_audio) {
             setTimeout(() => {
               // Can't get Tone to re-trigger without a timeout
               toneSchedule();
               play();
             }, 1);
-          } else if (item_state.loop) playStopHowl();
-          else finished(this);
+          } else if (item_state.loop && state.update_audio) {
+            state.update_audio = false;
+            playStopHowl();
+          } else {
+            finished(this);
+          }
 
           toneStop();
         },
@@ -325,7 +323,6 @@ const KEYS_DEMO = (function () {
 
   // > Schedules Tone.js Draw events. Get data from state,items_midi[state.playing_item_object_name]
   function toneSchedule() {
-    state.tonejs.synths.length = 0;
     state.tonejs.visuals.length = 0;
 
     const midi_obj = state.tonejs.items_midi[state.playing_item_object_name];
@@ -337,21 +334,7 @@ const KEYS_DEMO = (function () {
       Tone.Transport.schedule(() => {
         const now = Tone.now();
         midi_obj.tracks.forEach((track, i) => {
-          // Create a synth for each track (uncomment this and synth.triggerAttackRelease() to help diagnose any audio-visual sync issues)
-          // const synth = new Tone.PolySynth(10, Tone.Synth, {
-          //   envelope: {
-          //     attack: 0.02,
-          //     decay: 0.1,
-          //     sustain: 0.3,
-          //     release: 1,
-          //   }
-          // }).toMaster();
-          // state.tonejs.synths.push(synth);
-
-          // Schedule all of the events
           track.notes.forEach((note) => {
-            // https://github.com/Tonejs/Tone.js#triggerattackrelease
-            // synth.triggerAttackRelease(note.name, note.duration, note.time + now, note.velocity);
             // Schedule all of the UI amendments
             // Draw.schedule takes a callback and a time to invoke the callback
             // https://github.com/Tonejs/Tone.js/blob/cd7bcdbe4d04ad74afb5af9da6a9cff0d30f027e/examples/animationSync.html#L66-L76
@@ -372,18 +355,8 @@ const KEYS_DEMO = (function () {
                   `note-on-${hand}`,
                   `note-on-${hand}-velocity-${velocity_ui}`
                 );
-
-                // Increase radius initially
-                // if (el.classList.contains('indicator')) {
-                //     el.setAttribute('r', '7');
-                //     setTimeout(() => {
-                //         el.setAttribute('r', state.indicator_r_original); // Reset radius
-                //     }, state.active_item_state.tempo * 1.9);
-                // }
               });
               Tone.Draw.schedule(() => {
-                // console.debug(`(Track ${i}, note off)`, note.name);
-
                 // Remove note-on class name
                 [].forEach.call(key, (el) => {
                   clearClassesFromSVG(el, `note-on-${hand}`);
@@ -405,7 +378,6 @@ const KEYS_DEMO = (function () {
 
     const state_tonejs = state.tonejs;
     const visuals = state_tonejs.visuals;
-    const synths = state_tonejs.synths;
 
     // Stop visuals
     if (visuals[0]) visuals[0].cancel();
@@ -415,20 +387,13 @@ const KEYS_DEMO = (function () {
       .forEach((el) => {
         clearClassesFromSVG(el, `note-on-`);
       });
-
-    // Stop synths (may cause non-zero crossing pop/glitch)
-    if (synths[0]) synths[0].dispose();
-    if (synths[1]) synths[1].dispose();
   }
 
   function addHandlers() {
-    console.log("addHandlers");
     document.querySelectorAll(".button-play").forEach((element) => {
       element.addEventListener("click", (e) => {
-        console.log("MNERP");
         const name = replaceHyphens(e.currentTarget.dataset.name);
-
-        const osc = new Tone.Oscillator().toMaster(); // This is required or Safari won't run Tone.Transport.schedule(). Setting up an oscillator should activate the AudioContext.
+        const osc = new Tone.Oscillator().toMaster(); // This is required or Safari won't run Tone.Transport.schedule(). Just setting up an oscillator should activate the AudioContext.
 
         // Play silent HTML5 audio
         if (
@@ -436,7 +401,6 @@ const KEYS_DEMO = (function () {
           state.html_audio !== undefined &&
           !state.html_audio_playing
         ) {
-          // setTimeout(function () { // https://stackoverflow.com/a/37172024/4667710
           const play_promise = state.html_audio.play(); // https://developers.google.com/web/updates/2017/06/play-request-was-interrupted#fix
 
           play_promise
@@ -447,7 +411,6 @@ const KEYS_DEMO = (function () {
             .catch((error) => {
               console.error(error);
             });
-          // }, 150);
         }
 
         if (
@@ -459,28 +422,46 @@ const KEYS_DEMO = (function () {
         }
 
         state.active_item_state = state.items_state[name]; // Update state
-
         playStopHowl(e);
       });
     });
 
-    // Change made somewhere in UI ("change" event bubbles to <body>)
-    document.body.addEventListener("change", (e) => {
-      // State will be updated by default in response to the changed UI element. Add 'ignorechange="true"' to element to override this behaviour
-      if (
-        e.target.dataset.ignorechange &&
-        e.target.dataset.ignorechange == "true"
-      )
-        return;
+    document.querySelectorAll("select.tempo").forEach((element) => {
+      element.addEventListener("change", (e) => {
+        const dataset = e.target.dataset;
+        let tempo = e.target.value;
+        state.items_state[replaceHyphens(dataset.name)].tempo = tempo;
+        e.preventDefault();
+      });
+    });
 
+    document
+      .querySelectorAll("input[type=checkbox].loop")
+      .forEach((element) => {
+        element.addEventListener("change", (e) => {
+          state.items_state[replaceHyphens(e.target.dataset.name)].loop = e
+            .target.checked
+            ? true
+            : false;
+          e.preventDefault();
+        });
+      });
+
+    // Change made somewhere in UI ("change" event bubbles to <body>). For elements added dynamically
+    document.body.addEventListener("change", (e) => {
       updateState(e);
     });
   }
 
-  function getState(property = null) {
-    if (property) console.debug(property, state[property]);
-    else console.debug(state);
-  }
+  document.querySelectorAll("select.tempo").forEach((element) => {
+    element.addEventListener("change", (e) => {
+      const dataset = e.target.dataset;
+      let tempo = e.target.value;
+      state.items_state[replaceHyphens(dataset.name)].tempo = tempo;
+      console.log(state.items_state[replaceHyphens(dataset.name)].tempo);
+      e.preventDefault();
+    });
+  });
 
   function replaceHyphens(str) {
     return str.replace(/-/g, "_");
@@ -500,21 +481,11 @@ const KEYS_DEMO = (function () {
   }
 
   return {
-    init: init,
-    getState: getState
+    init: init
   };
 })();
 
 switch (document.readyState) {
-  case "loading":
-    // The document is still loading.
-    console.log("Loading");
-    break;
-  case "interactive":
-    // The document has finished loading. We can now access the DOM elements.
-    // But sub-resources such as scripts, images, stylesheets and frames are still loading.
-    console.log("Interactive");
-    break;
   case "complete":
     KEYS_DEMO.init();
     break;
