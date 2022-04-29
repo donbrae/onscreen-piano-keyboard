@@ -1,5 +1,6 @@
 body {
   font-family: sans-serif;
+  background-color: #fcfcfc;
 }
 :focus {
   outline: 1px dotted #767676;
@@ -25,6 +26,7 @@ body {
 
 /* select, button */
 .select {
+  -webkit-appearance: none;
   appearance: none;
   display: block;
   padding-right: 1.4rem;
@@ -34,7 +36,7 @@ body {
   background-repeat: no-repeat;
   background-position: right 0.7em top 51%, 0 0;
   background-size: 1em auto, 100%;
-  background-color: #fcf7fe;
+  background-color: #eee;
 }
 button {
   width: 82px;
@@ -65,7 +67,7 @@ button {
 }
 .button.button-play.button-playing:focus,
 .button.button-play.button-playing:hover {
-  background-color: #fcf7fe;
+  background-color: #eee;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='icon icon-tabler' width='44' height='44' viewBox='0 0 24 24' stroke-width='2' stroke='%23333333' fill='%23333333' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath stroke='none' d='M0 0h24v24H0z' fill='none'/%3E%3Crect x='5' y='5' width='14' height='14' rx='2' /%3E%3C/svg%3E");
   color: #333;
 }
@@ -77,7 +79,7 @@ button {
 .button:hover,
 .select:focus,
 .select:hover {
-  background-color: #fcf7fe;
+  background-color: #eee;
   cursor: pointer;
 }
 .loading-dots {
@@ -122,7 +124,7 @@ label {
   margin-right: 0.5rem;
   width: 46px;
   height: 26px;
-  background-color: #faf2ff;
+  background-color: #eee;
   border-radius: 23px;
   transition: background-color 0.3s linear;
 }
@@ -132,7 +134,7 @@ label {
   left: 0;
   width: 42px;
   height: 22px;
-  background-color: #faf2ff;
+  background-color: #eee;
   border-radius: 11px;
   transform: translate3d(2px, 2px, 0) scale3d(1, 1, 1);
   transition: all 0.25s linear;

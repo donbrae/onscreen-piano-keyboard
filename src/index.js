@@ -4,7 +4,7 @@ import * as Midi from "@tonejs/midi";
 
 /**
  * @name KEYS_DEMO
- * @author Jamie Smith, jamieonkeys.dev, jazzkeys.fyi
+ * @author Jamie Smith, jamieonkeys.dev, JazzKeys.fyi
  */
 
 const KEYS_DEMO = (function () {
@@ -95,7 +95,11 @@ const KEYS_DEMO = (function () {
       state.items_state[name] = new ItemAudioState(
         name,
         element, // button_play
-        data.loop,
+        data.loop &&
+        document.querySelector(data.loop) &&
+        document.querySelector(data.loop).checked
+          ? true
+          : false, // loop
         tempo,
         encodeURI(
           `${cfg.audio_folder}/${data.name}/${data.name}${tempo_formatted}`
@@ -135,6 +139,9 @@ const KEYS_DEMO = (function () {
             "beforebegin",
             `<div class="container-keyboard keys-${keys}">${keyboard_svg.outerHTML}</div>`
           );
+
+          document.body.style.transition = "opacity 0.5s";
+          document.body.style.opacity = 1;
 
           state.tonejs.items_midi[name] = midi_js;
         });
@@ -485,9 +492,4 @@ const KEYS_DEMO = (function () {
   };
 })();
 
-switch (document.readyState) {
-  case "complete":
-    KEYS_DEMO.init();
-    break;
-  default:
-}
+KEYS_DEMO.init();
