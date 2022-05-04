@@ -161,7 +161,7 @@ const KEYS_DEMO = (function () {
     state.init = true;
   }
 
-  // Set up silent HTML5 audio for iOS bug
+  // Set up silent HTML5 audio for iOS
   function setupHTML5Audio() {
     // https://github.com/swevans/unmute/blob/master/unmute.js#L235-L254
     // In iOS we need to play an HTML track in the background
@@ -258,7 +258,7 @@ const KEYS_DEMO = (function () {
 
     const item_state = state.active_item_state;
 
-    // Function to play main audio file (i.e. after any initial, non-'extra' count-in) and start visuals
+    // Function to play main audio file and start visuals
     function play() {
       if (state.audio !== undefined) {
         state.audio.play();
@@ -328,7 +328,7 @@ const KEYS_DEMO = (function () {
     }
   }
 
-  // > Schedules Tone.js Draw events. Get data from state,items_midi[state.playing_item_object_name]
+  // Schedules Tone.js Draw events. Gets data from state.tonejs.items_midi[state.playing_item_object_name]
   function toneSchedule() {
     state.tonejs.visuals.length = 0;
 
@@ -455,9 +455,7 @@ const KEYS_DEMO = (function () {
       });
 
     // Change made somewhere in UI ("change" event bubbles to <body>). For elements added dynamically
-    document.body.addEventListener("change", (e) => {
-      updateState(e);
-    });
+    document.body.addEventListener("change", updateState);
   }
 
   document.querySelectorAll("select.tempo").forEach((element) => {

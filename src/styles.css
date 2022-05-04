@@ -249,8 +249,8 @@ label {
 }
 .note.indicator {
   stroke-width: 1.7px;
-  fill: #fff;
-  stroke: #fff;
+  fill: #fcfcfc;
+  stroke: #fcfcfc;
   transition: fill 1.2s cubic-bezier(0.01, 0.95, 0, 0.99),
     stroke 1.2s cubic-bezier(0.01, 0.95, 0, 0.99),
     r 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
