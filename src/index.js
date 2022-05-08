@@ -1,6 +1,6 @@
-import { Howl } from "howler";
-import Tone from "tone";
-import * as Midi from "@tonejs/midi";
+import { Howl } from 'howler';
+import Tone from 'tone';
+import * as Midi from '@tonejs/midi';
 
 /**
  * @name KEYS_DEMO
@@ -9,7 +9,7 @@ import * as Midi from "@tonejs/midi";
 
 const KEYS_DEMO = (function () {
   const cfg = {
-    audioFolder: "../audio",
+    audioFolder: '../audio',
     logging: true,
     fadeRate: 120, // ms
     // https://commons.wikimedia.org/wiki/File:PianoKeyboard.svg; Copyright(c) 2005 Lauri Kaila; GNU Free Documentation License
@@ -22,7 +22,7 @@ const KEYS_DEMO = (function () {
   const state = {
     init: false,
     itemsState: {}, // Instantiated `ItemAudioState` objects
-    activeItemState: undefined, // Reference to active item's object in `items_state`. Active item == currently playing item (set on Play button click)
+    activeItemState: undefined, // Reference to active item's object in `itemsState`. Active item == currently playing item (set on Play button click)
     audio: undefined, // Main howler object
     playing: false,
     loading: false,
@@ -65,24 +65,24 @@ const KEYS_DEMO = (function () {
   }
 
   function init() {
-    if (!document.querySelector(".button-play")) return; // At least one .button-playing needs to be present
+    if (!document.querySelector('.button-play')) return; // At least one .button-playing needs to be present
 
     const userAgent = navigator.userAgent.toLowerCase();
 
     state.isiOS =
-      userAgent.indexOf("iphone") > -1 ||
-      userAgent.indexOf("ipod") > -1 ||
-      userAgent.indexOf("ipad") > -1 ||
+      userAgent.indexOf('iphone') > -1 ||
+      userAgent.indexOf('ipod') > -1 ||
+      userAgent.indexOf('ipad') > -1 ||
       (navigator.maxTouchPoints && /Mac/.test(navigator.platform)); // iPad running 'desktop' Safari
 
-    document.querySelectorAll(".button-play").forEach((element) => {
+    document.querySelectorAll('.button-play').forEach((element) => {
       let data = element.dataset;
       let name = replaceHyphens(data.name);
       let tempo =
         data.tempo && document.querySelector(data.tempo)
           ? parseInt(document.querySelector(data.tempo).value)
           : undefined;
-      let tempoFormatted = "";
+      let tempoFormatted = '';
       if (tempo) tempoFormatted = `-${tempo}`;
 
       let midi =
@@ -115,8 +115,8 @@ const KEYS_DEMO = (function () {
           let keys;
 
           if (numberOfKeys !== undefined) {
-            let numberOfKeysDefault = numberOfKeys.split("|")[0];
-            let numberOfKeysMobile = numberOfKeys.split("|")[1];
+            let numberOfKeysDefault = numberOfKeys.split('|')[0];
+            let numberOfKeysMobile = numberOfKeys.split('|')[1];
             keys =
               window.innerWidth < 600 && numberOfKeysMobile !== undefined
                 ? numberOfKeysMobile
@@ -132,15 +132,15 @@ const KEYS_DEMO = (function () {
 
           keyboardSVG.classList.add(name);
 
-          if (cfg.logging) console.debug("Midi file loaded");
+          if (cfg.logging) console.debug('Midi file loaded');
 
           // Add keyboard
           element.parentNode.insertAdjacentHTML(
-            "beforebegin",
+            'beforebegin',
             `<div class="container-keyboard keys-${keys}">${keyboardSVG.outerHTML}</div>`
           );
 
-          document.body.style.transition = "opacity 0.5s";
+          document.body.style.transition = 'opacity 0.5s';
           document.body.style.opacity = 1;
 
           state.tonejs.itemsMidi[name] = midiJS;
@@ -148,7 +148,7 @@ const KEYS_DEMO = (function () {
       }
 
       element.insertAdjacentHTML(
-        "afterend",
+        'afterend',
         `<div class="count-in ${replaceHyphens(name)}"></div>`
       );
     });
@@ -165,37 +165,37 @@ const KEYS_DEMO = (function () {
   function setupHTML5Audio() {
     // https://github.com/swevans/unmute/blob/master/unmute.js#L235-L254
     // In iOS we need to play an HTML track in the background
-    const div = document.createElement("div");
-    div.innerHTML = "<audio x-webkit-airplay='deny'></audio>";
+    const div = document.createElement('div');
+    div.innerHTML = '<audio x-webkit-airplay="deny"></audio>';
     state.htmlAudio = div.children.item(0);
     state.htmlAudio.controls = false;
     state.htmlAudio.disableRemotePlayback = true; // Airplay like controls on other devices, prevents casting of the tag
-    state.htmlAudio.preload = "auto";
+    state.htmlAudio.preload = 'auto';
     // Set the src to a short bit of url encoded as a silent mp3
     // NOTE: the silence MP3 must be high quality, when web audio sounds are played in parallel the web audio sound is mixed to match the bitrate of the html sound
     // 0.01 seconds of silence VBR220-260 Joint Stereo 859B
     state.htmlAudio.src =
-      "data:audio/mpeg;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAACcQCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA//////////////////////////////////////////////////////////////////8AAABhTEFNRTMuMTAwA8MAAAAAAAAAABQgJAUHQQAB9AAAAnGMHkkIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//sQxAADgnABGiAAQBCqgCRMAAgEAH///////////////7+n/9FTuQsQH//////2NG0jWUGlio5gLQTOtIoeR2WX////X4s9Atb/JRVCbBUpeRUq//////////////////9RUi0f2jn/+xDECgPCjAEQAABN4AAANIAAAAQVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQ==";
+      'data:audio/mpeg;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAACcQCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA//////////////////////////////////////////////////////////////////8AAABhTEFNRTMuMTAwA8MAAAAAAAAAABQgJAUHQQAB9AAAAnGMHkkIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//sQxAADgnABGiAAQBCqgCRMAAgEAH///////////////7+n/9FTuQsQH//////2NG0jWUGlio5gLQTOtIoeR2WX////X4s9Atb/JRVCbBUpeRUq//////////////////9RUi0f2jn/+xDECgPCjAEQAABN4AAANIAAAAQVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQ==';
     state.htmlAudio.loop = true;
     state.htmlAudioSetup = true;
 
-    if (cfg.logging) console.debug("HTML5 audio set up");
+    if (cfg.logging) console.debug('HTML5 audio set up');
   }
 
   function updateState(e) {
     const name = e.target.dataset.name;
     const itemState = state.itemsState[replaceHyphens(name)];
 
-    const rhythm = itemState.rhythm ? `-${itemState.rhythm}` : "";
-    const tempo = itemState.tempo ? `-${itemState.tempo}` : "";
+    const rhythm = itemState.rhythm ? `-${itemState.rhythm}` : '';
+    const tempo = itemState.tempo ? `-${itemState.tempo}` : '';
 
     itemState.filePath = `${cfg.audioFolder}/${name}/${name}${rhythm}${tempo}`;
 
     // Should audio file be updated so that, if looped, the user-selected audio is played?
     if (
       state.playing &&
-      (e.target.classList.contains("tempo") ||
-        e.target.classList.contains("rhythm")) &&
+      (e.target.classList.contains('tempo') ||
+        e.target.classList.contains('rhythm')) &&
       state.activeItemState.name === replaceHyphens(name)
     )
       state.updateAudio = true;
@@ -219,27 +219,27 @@ const KEYS_DEMO = (function () {
 
   // Audio has just started playing
   function started() {
-    state.activeItemState.buttonPlay.classList.add("button-playing");
-    state.activeItemState.buttonPlay.innerText = "Stop";
+    state.activeItemState.buttonPlay.classList.add('button-playing');
+    state.activeItemState.buttonPlay.innerText = 'Stop';
     state.loading = false;
     state.playing = true;
   }
 
   // Audio has finished playing
   function finished() {
-    state.activeItemState.buttonPlay.classList.remove("button-playing");
-    state.activeItemState.buttonPlay.innerText = "Play";
+    state.activeItemState.buttonPlay.classList.remove('button-playing');
+    state.activeItemState.buttonPlay.innerText = 'Play';
     state.playing = false;
     state.loading = false;
     state.updateAudio = false;
     state.audio = undefined;
     state.playCount = 0;
-    if (cfg.logging) console.debug("Finished");
+    if (cfg.logging) console.debug('Finished');
   }
 
   // Stop currently playing audio
   function finish() {
-    if (cfg.logging) console.debug("finish()");
+    if (cfg.logging) console.debug('finish()');
     if (state.playing) {
       toneStop();
       state.audio.fade(1, 0, cfg.fadeRate);
@@ -254,7 +254,7 @@ const KEYS_DEMO = (function () {
   }
 
   function playStopHowl(e) {
-    if (cfg.logging) console.debug("playStopHowl()");
+    if (cfg.logging) console.debug('playStopHowl()');
 
     const itemState = state.activeItemState;
 
@@ -275,13 +275,13 @@ const KEYS_DEMO = (function () {
       finish();
     } else {
       // Main audio file (e.g. lick)
-      if (cfg.logging) console.debug("*** Set up new `state.audio`");
+      if (cfg.logging) console.debug('*** Set up new `state.audio`');
 
       state.loading = true;
       disableUI();
 
       state.timeouts.loading = setTimeout(function () {
-        state.activeItemState.buttonPlay.classList.add("button-playing");
+        state.activeItemState.buttonPlay.classList.add('button-playing');
         state.activeItemState.buttonPlay.innerHTML = `<div class="loading-dots blink"></div>`; // https://iconmonstr.com/loading-5-svg
       }, 500);
 
@@ -303,7 +303,7 @@ const KEYS_DEMO = (function () {
         },
         onend: function () {
           // Called regardless of whether on loop
-          if (cfg.logging) console.debug("`state.audio` onend");
+          if (cfg.logging) console.debug('`state.audio` onend');
           state.playCount++;
 
           if (itemState.loop && !state.updateAudio) {
@@ -328,26 +328,26 @@ const KEYS_DEMO = (function () {
     }
   }
 
-  // Schedules Tone.js Draw events. Gets data from state.tonejs.items_midi[state.playing_item_object_name]
+  // Schedules Tone.js Draw events. Gets data from state.tonejs.itemsMidi[state.playingItemObjectName]
   function toneSchedule() {
     state.tonejs.visuals.length = 0;
 
-    const midi_obj = state.tonejs.itemsMidi[state.playingItemObjectName];
+    const midiObj = state.tonejs.itemsMidi[state.playingItemObjectName];
 
-    if (midi_obj) {
-      midi_obj.header.tempos[0].bpm = state.activeItemState.tempo; // Set BPM
+    if (midiObj) {
+      midiObj.header.tempos[0].bpm = state.activeItemState.tempo; // Set BPM
 
       // API: https://tonejs.github.io/docs/14.7.77/Transport
       Tone.Transport.schedule(() => {
         const now = Tone.now();
-        midi_obj.tracks.forEach((track, i) => {
+        midiObj.tracks.forEach((track, i) => {
           track.notes.forEach((note) => {
             // Schedule all of the UI amendments
             // Draw.schedule takes a callback and a time to invoke the callback
             // https://github.com/Tonejs/Tone.js/blob/cd7bcdbe4d04ad74afb5af9da6a9cff0d30f027e/examples/animationSync.html#L66-L76
             state.tonejs.visuals[i] = Tone.Draw.schedule(() => {
               // Callback synced to the animation frame at the given time
-              const velocity_ui = Math.min(
+              const velocityUI = Math.min(
                 Math.max(Math.round(note.velocity * 10), 1),
                 10
               );
@@ -355,12 +355,12 @@ const KEYS_DEMO = (function () {
                 .querySelector(`.piano-keys.${state.playingItemObjectName}`)
                 .getElementsByClassName(`key${note.name}`);
 
-              const hand = midi_obj.tracks.length === 1 || i ? "rh" : "lh"; // If only one track, assume right hand. Conditional based on logic Piano 1/2 staff style for two-hand track (track 0 == lh; track 1 == rh));
+              const hand = midiObj.tracks.length === 1 || i ? 'rh' : 'lh'; // If only one track, assume right hand. Conditional based on logic Piano 1/2 staff style for two-hand track (track 0 == lh; track 1 == rh));
 
               [].forEach.call(key, (el) => {
                 el.classList.add(
                   `note-on-${hand}`,
-                  `note-on-${hand}-velocity-${velocity_ui}`
+                  `note-on-${hand}-velocity-${velocityUI}`
                 );
               });
               Tone.Draw.schedule(() => {
@@ -372,12 +372,12 @@ const KEYS_DEMO = (function () {
             }, note.time + now);
           });
         });
-      }, "0:0:0");
+      }, '0:0:0');
     }
   }
 
   function toneStop() {
-    if (cfg.logging) console.debug("toneStop()");
+    if (cfg.logging) console.debug('toneStop()');
 
     // Tone.Transport methods don't affect aleady scheduled sounds; only the timeline
     Tone.Transport.stop(); // Returns timeline to position 0:0:0
@@ -397,8 +397,8 @@ const KEYS_DEMO = (function () {
   }
 
   function addHandlers() {
-    document.querySelectorAll(".button-play").forEach((element) => {
-      element.addEventListener("click", (e) => {
+    document.querySelectorAll('.button-play').forEach((element) => {
+      element.addEventListener('click', (e) => {
         const name = replaceHyphens(e.currentTarget.dataset.name);
         const osc = new Tone.Oscillator().toMaster(); // This is required or Safari won't run Tone.Transport.schedule(). Just setting up an oscillator should activate the AudioContext.
 
@@ -408,12 +408,12 @@ const KEYS_DEMO = (function () {
           state.htmlAudio !== undefined &&
           !state.htmlAudioPlaying
         ) {
-          const play_promise = state.htmlAudio.play(); // https://developers.google.com/web/updates/2017/06/play-request-was-interrupted#fix
+          const playPromise = state.htmlAudio.play(); // https://developers.google.com/web/updates/2017/06/play-request-was-interrupted#fix
 
-          play_promise
-            .then((_) => {
+          playPromise
+            .then(_ => {
               state.htmlAudioPlaying = true;
-              if (cfg.logging) console.debug("Playing HTML5 audio");
+              if (cfg.logging) console.debug('Playing HTML5 audio');
             })
             .catch((error) => {
               console.error(error);
@@ -433,8 +433,8 @@ const KEYS_DEMO = (function () {
       });
     });
 
-    document.querySelectorAll("select.tempo").forEach((element) => {
-      element.addEventListener("change", (e) => {
+    document.querySelectorAll('select.tempo').forEach((element) => {
+      element.addEventListener('change', (e) => {
         const dataset = e.target.dataset;
         let tempo = e.target.value;
         state.itemsState[replaceHyphens(dataset.name)].tempo = tempo;
@@ -443,9 +443,9 @@ const KEYS_DEMO = (function () {
     });
 
     document
-      .querySelectorAll("input[type=checkbox].loop")
+      .querySelectorAll('input[type=checkbox].loop')
       .forEach((element) => {
-        element.addEventListener("change", (e) => {
+        element.addEventListener('change', (e) => {
           state.itemsState[replaceHyphens(e.target.dataset.name)].loop = e
             .target.checked
             ? true
@@ -454,12 +454,12 @@ const KEYS_DEMO = (function () {
         });
       });
 
-    // Change made somewhere in UI ("change" event bubbles to <body>). For elements added dynamically
-    document.body.addEventListener("change", updateState);
+    // Change made somewhere in UI ('change' event bubbles to <body>). For elements added dynamically
+    document.body.addEventListener('change', updateState);
   }
 
-  document.querySelectorAll("select.tempo").forEach((element) => {
-    element.addEventListener("change", (e) => {
+  document.querySelectorAll('select.tempo').forEach((element) => {
+    element.addEventListener('change', (e) => {
       const dataset = e.target.dataset;
       let tempo = e.target.value;
       state.itemsState[replaceHyphens(dataset.name)].tempo = tempo;
@@ -469,20 +469,20 @@ const KEYS_DEMO = (function () {
   });
 
   function replaceHyphens(str) {
-    return str.replace(/-/g, "_");
+    return str.replace(/-/g, '_');
   }
 
   function parseHTML(str) {
-    const tmp = document.implementation.createHTMLDocument("");
+    const tmp = document.implementation.createHTMLDocument('');
     tmp.body.innerHTML = str;
     return tmp.body.children[0];
   }
 
   function clearClassesFromSVG(el, str) {
     const classes = el.className.baseVal
-      .split(" ")
+      .split(' ')
       .filter((c) => !c.startsWith(str));
-    el.className.baseVal = classes.join(" ").trim();
+    el.className.baseVal = classes.join(' ').trim();
   }
 
   return {
