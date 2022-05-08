@@ -22,15 +22,15 @@ const KEYS_DEMO = (function () {
   const state = {
     init: false,
     items_state: {}, // Instantiated `ItemAudioState` objects
-    active_item_state: undefined, // Reference to active item's object in `items_state`. Active item = currently playing item (set on Play button click)
+    active_item_state: undefined, // Reference to active item's object in `items_state`. Active item == currently playing item (set on Play button click)
     audio: undefined, // Main howler object
     playing: false,
     loading: false,
     playing_item_object_name: undefined, // Name of the item currently being played
-    play_count: 0, // Updated after end of each play of main audio file
+    play_count: 0, // Incremented after end of each play of main audio file
     update_audio: false, // Was a relevant parameter (e.g. tempo or rhythm) changed during playing that requires the main audio file playing to be updated?
     is_iOS: undefined, // true/false
-    html_audio: undefined, // Re iOS bug
+    html_audio: undefined, // For iOS
     html_audio_set_up: false, // Flag. Background HTML5 element created
     html_audio_playing: false, // Flag. Background HTML5 started playing
     tonejs: {
@@ -78,7 +78,7 @@ const KEYS_DEMO = (function () {
     document.querySelectorAll(".button-play").forEach((element) => {
       let data = element.dataset;
       let name = replaceHyphens(data.name);
-      var tempo =
+      let tempo =
         data.tempo && document.querySelector(data.tempo)
           ? parseInt(document.querySelector(data.tempo).value)
           : undefined;
