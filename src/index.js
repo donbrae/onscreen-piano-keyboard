@@ -32,7 +32,7 @@ const KEYS_DEMO = (function () {
     isiOS: undefined, // true/false
     htmlAudio: undefined, // For iOS
     htmlAudioSetup: false, // Flag. Background HTML5 element created
-    htmlAudioPlaying: false, // Flag. Background HTML5 started playing
+    htmlAudioPlaying: false, // Flag. Background HTML5 has started playing
     tonejs: {
       itemsMidi: {}, // MIDI files as JS objects
       visuals: []
@@ -45,15 +45,7 @@ const KEYS_DEMO = (function () {
 
   // Constructor function
   class ItemAudioState {
-    constructor(
-      name,
-      buttonPlay,
-      loop,
-      tempo,
-      filePath,
-      midi,
-      numberOfKeys
-    ) {
+    constructor(name, buttonPlay, loop, tempo, filePath, midi, numberOfKeys) {
       this.name = name; // e.g. lick-blues-1. Taken from `data-name` on .button-play
       this.buttonPlay = buttonPlay;
       this.loop = loop; // true/false
@@ -292,9 +284,7 @@ const KEYS_DEMO = (function () {
           started(e);
 
           if (e) {
-            state.playingItemObjectName = replaceHyphens(
-              e.target.dataset.name
-            );
+            state.playingItemObjectName = replaceHyphens(e.target.dataset.name);
           }
 
           toneSchedule();
@@ -411,7 +401,7 @@ const KEYS_DEMO = (function () {
           const playPromise = state.htmlAudio.play(); // https://developers.google.com/web/updates/2017/06/play-request-was-interrupted#fix
 
           playPromise
-            .then(_ => {
+            .then((_) => {
               state.htmlAudioPlaying = true;
               if (cfg.logging) console.debug('Playing HTML5 audio');
             })
