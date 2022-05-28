@@ -278,7 +278,7 @@ const KEYS_DEMO = (function () {
       }, 500);
 
       state.audio = new Howl({
-        src: [`${itemState.filePath}.webm`, `${itemState.filePath}.m4a`],
+        src: [`${itemState.filePath}.m4a`],
         onload: function () {
           clearTimeout(state.timeouts.loading);
           started(e);
