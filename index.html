@@ -8,9 +8,9 @@
   </head>
 
   <body>
+      <noscript><p>The piano keyboard and audio require JavaScript.</p></noscript>
       <div class="flex controls">
           <button class="button button-play" data-name="groove-funk-1" data-tempo="#tempo1" data-loop="#loop1" data-annotations="#annotations1" data-midi="88|49">Play</button>
-          <noscript><div class="button-note">You need JavaScript to play the audio</div></noscript>
       </div>
       <div class="flex controls">
           <div>
@@ -28,8 +28,12 @@
                   <i></i>
               </label>
           </div>
-        </div>
+       </div>
     </div>
+
+    <script>
+        document.body.style.opacity = 0; // Set to 1 after init. Hides layout shift.
+    </script>
 
     <script src="src/index.js"></script>
   </body>
