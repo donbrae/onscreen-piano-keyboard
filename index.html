@@ -3,38 +3,49 @@
   <head>
     <title>Parcel Sandbox</title>
     <meta charset="UTF-8" />
-
-    <link href="src/styles.css" rel="stylesheet">
+    <link href="src/styles.css" rel="stylesheet" />
   </head>
-
   <body>
-      <noscript><p>The piano keyboard and audio require JavaScript.</p></noscript>
-      <div class="flex controls">
-          <button class="button button-play" data-name="groove-funk-1" data-tempo="#tempo1" data-loop="#loop1" data-annotations="#annotations1" data-midi="88|49">Play</button>
-      </div>
-      <div class="flex controls">
-          <div>
-              <label for="tempo1">Tempo (speed)</label>
-              <select id="tempo1" class="select tempo" data-name="groove-funk-1">
-                  <option value="80">80bpm (1x)</option>
-                  <option value="60">60bpm (0.75x)</option>
-                  <option value="40">40bpm (0.5x)</option>
-              </select>
-          </div>
-          <div>
-              <label class="form-switch">
-                  Loop
-                  <input type="checkbox" class="loop" id="loop1" data-name="groove-funk-1">
-                  <i></i>
-              </label>
-          </div>
-       </div>
+    <noscript>
+      <p>The piano keyboard and audio require JavaScript.</p>
+    </noscript>
+    <div class="flex controls">
+      <button
+        class="button button-play"
+        data-name="groove-funk-1"
+        data-tempo="#tempo1"
+        data-loop="#loop1"
+        data-annotations="#annotations1"
+        data-midi="88|49"
+      >
+        Play
+      </button>
     </div>
-
+    <div class="flex controls">
+      <div>
+        <label for="tempo1">Tempo (speed)</label>
+        <select id="tempo1" class="select tempo" data-name="groove-funk-1">
+          <option value="80">80bpm (1x)</option>
+          <option value="60">60bpm (0.75x)</option>
+          <option value="40">40bpm (0.5x)</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-switch">
+          Loop
+          <input
+            type="checkbox"
+            class="loop"
+            id="loop1"
+            data-name="groove-funk-1"
+          />
+          <i></i>
+        </label>
+      </div>
+    </div>
     <script>
-        document.body.style.opacity = 0; // Set to 1 after init. Hides layout shift.
+      document.body.style.opacity = 0; // Set to 1 after init. Hides layout shift.
     </script>
-
     <script src="src/index.js"></script>
   </body>
 </html>

@@ -1,4 +1,4 @@
-import { Howl } from 'howler';
+import { Howl, Howler } from 'howler';
 import Tone from 'tone';
 import * as Midi from '@tonejs/midi';
 
@@ -33,6 +33,10 @@ const KEYS_DEMO = (function () {
     htmlAudio: undefined, // For iOS
     htmlAudioSetup: false, // Flag. Background HTML5 element created
     htmlAudioPlaying: false, // Flag. Background HTML5 has started playing
+    hasOutputLatency:
+      window.AudioContext && 'outputLatency' in window.AudioContext.prototype
+        ? true
+        : false,
     tonejs: {
       itemsMidi: {}, // MIDI files as JS objects
       visuals: []
@@ -323,6 +327,15 @@ const KEYS_DEMO = (function () {
     state.tonejs.visuals.length = 0;
 
     const midiObj = state.tonejs.itemsMidi[state.playingItemObjectName];
+    const outputLatency = state.hasOutputLatency ? Howler.ctx.outputLatency : 0;
+
+    if (cfg.logging) {
+      const outputLatencyMessage = state.hasOutputLatency
+        ? `${outputLatency}s`
+        : '(unsuppored)';
+
+      console.debug(`outputLatency: ${outputLatencyMessage}`);
+    }
 
     if (midiObj) {
       midiObj.header.tempos[0].bpm = state.activeItemState.tempo; // Set BPM
@@ -362,7 +375,7 @@ const KEYS_DEMO = (function () {
             }, note.time + now);
           });
         });
-      }, '0:0:0');
+      }, outputLatency);
     }
   }
 
