@@ -1,3 +1,6 @@
+// > https://codesandbox.io/s/onscreen-piano-keyboard-latency-test-byb90q?file=/src/index.js
+// > REFACTOR: Don't use Howler to manage UI changes; use Tone.js to handle all visuals logic instead (as it handles latency)
+
 import { Howl, Howler } from 'howler';
 import Tone from 'tone';
 import * as Midi from '@tonejs/midi';
@@ -92,8 +95,8 @@ const KEYS_DEMO = (function () {
         name,
         element, // buttonPlay
         data.loop &&
-        document.querySelector(data.loop) &&
-        document.querySelector(data.loop).checked
+          document.querySelector(data.loop) &&
+          document.querySelector(data.loop).checked
           ? true
           : false, // loop
         tempo,
@@ -237,7 +240,7 @@ const KEYS_DEMO = (function () {
   function finish() {
     if (cfg.logging) console.debug('finish()');
     if (state.playing) {
-      toneStop();
+      toneCancel();
       state.audio.fade(1, 0, cfg.fadeRate);
     }
     if (state.htmlAudio !== undefined) {
@@ -259,6 +262,9 @@ const KEYS_DEMO = (function () {
       if (state.audio !== undefined) {
         state.audio.play();
         Tone.Transport.start();
+        // Tone.Transport.on('end', function (time) {
+        //   console.log('Drawing events has ended at time ' + time);
+        // });
       }
     }
 
@@ -310,10 +316,10 @@ const KEYS_DEMO = (function () {
             state.updateAudio = false;
             playStopHowl();
           } else {
-            finished(this);
+            finished(this); // > This should be handled somehow by Tone.js because it's handling the latency
           }
 
-          toneStop();
+          // toneStop();
         },
         onfade: function () {
           this.stop();
@@ -371,19 +377,32 @@ const KEYS_DEMO = (function () {
                 [].forEach.call(key, (el) => {
                   clearClassesFromSVG(el, `note-on-${hand}`);
                 });
+                if (
+                  Tone.Time(Tone.Transport.position).toSeconds() -
+                  outputLatency >
+                  midiObj.duration
+                ) {
+                  // > Could this be made more efficient, like an Draw event count?
+                  Tone.Transport.stop(); // Set timeline position to 0:0:0
+                }
               }, note.time + now + note.duration + 0.06); // + n.nn just to help visibility with faster music
             }, note.time + now);
           });
         });
       }, outputLatency);
+      Tone.Transport.on('stop', function (time) {
+        console.log('Transport has stopped at time ' + time);
+      });
+      console.log(`*** ${midiObj.duration}`);
     }
   }
 
-  function toneStop() {
+  // User stops playback
+  function toneCancel() {
     if (cfg.logging) console.debug('toneStop()');
 
     // Tone.Transport methods don't affect aleady scheduled sounds; only the timeline
-    Tone.Transport.stop(); // Returns timeline to position 0:0:0
+    // Tone.Transport.stop(); // Returns timeline to position 0:0:0 (Now in toneSchedule())
     Tone.Transport.cancel(); // Cancels remaining scheduled events https://tonejs.github.io/docs/14.7.77/Transport#cancel
 
     const stateToneJS = state.tonejs;
